@@ -2,14 +2,14 @@
   font-family: "EB Garamond";
   font-style: normal;
   font-weight: 500;
-  src: url("/fonts/eb-garamond-v13-latin-500.woff2") format("woff2");
+  src: url("fonts/eb-garamond-v13-latin-500.woff2") format("woff2");
 }
 
 @font-face {
   font-family: "Inter";
   font-style: normal;
   font-weight: 400;
-  src: url("/fonts/Inter-Regular.woff2") format("woff2");
+  src: url("fonts/Inter-Regular.woff2") format("woff2");
 }
 
 html,
