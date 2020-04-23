@@ -32,7 +32,11 @@
         }
 
         const endpoint = serverUrl
-        const res = await fetch(serverUrl)
+        const res = await fetch(serverUrl, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
         const data = await res.json()
 
         const r = Recogito.init({content});
@@ -41,7 +45,7 @@
         r.on("createAnnotation", async (annotation) => {
             debug('create')
             if (annotation.id) {
-              delete annotation.id
+                delete annotation.id
             }
 
             await fetch(endpoint, {
