@@ -35,7 +35,7 @@
         const res = await fetch(serverUrl, {
             headers: {
                 "Content-Type": "application/json"
-            }
+            },
         })
         const data = await res.json()
 
@@ -44,8 +44,9 @@
 
         r.on("createAnnotation", async (annotation) => {
             debug('create')
+            const rawAnnotation = {...annotation}
             if (annotation.id) {
-                delete annotation.id
+                delete rawAnnotation.id
             }
 
             await fetch(endpoint, {
@@ -54,7 +55,7 @@
                     "Content-Type": "application/json"
                 },
                 redirect: "follow",
-                body: JSON.stringify(annotation)
+                body: JSON.stringify(rawAnnotation)
             });
         });
 
@@ -70,21 +71,32 @@
             });
         });
 
+        r.on("deleteAnnotation", async (annotation) => {
+            debug('delete', annotation.id)
+            await fetch(annotation.id, {
+                method: "delete",
+            });
+        });
+
         if (isHyperwell) {
             const {host, notebookId} = parseHyperwellUrl(endpoint)
             const subscriptionEndpoint = `ws://${host}/annotations/subscribe/${notebookId}`
 
-            const ws = new WebSocket(subscriptionEndpoint);
+            const ws = new WebSocket(subscriptionEndpoint)
             ws.onmessage = event => {
-                const diff = JSON.parse(event.data);
+                const diff = JSON.parse(event.data)
                 debug('real-time update', diff)
 
                 for (const addedAnnotation of diff.inserted) {
-                    r.addAnnotation(addedAnnotation);
+                    r.addAnnotation(addedAnnotation)
                 }
 
                 for (const changedAnnotation of diff.changed) {
-                    r.addAnnotation(changedAnnotation);
+                    r.addAnnotation(changedAnnotation)
+                }
+
+                for (const deletedAnnotation of diff.deleted) {
+                    r.removeAnnotation(deletedAnnotation)
                 }
             };
         }
