@@ -1,6 +1,6 @@
 <script>
     import createDebug from 'debug'
-    import Recogito from '../lib/recogito-0.1.2.min'
+    import Recogito from '@recogito/recogito-js'
     import faust from '../faust.txt'
 
     createDebug.enable('annotation*')
