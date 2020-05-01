@@ -1,6 +1,7 @@
 <script>
     import createDebug from 'debug'
     import Recogito from '@recogito/recogito-js'
+    import {fetchAnnotations} from '../lib/web-annotation'
     import faust from '../faust.txt'
 
     createDebug.enable('annotation*')
@@ -32,15 +33,10 @@
         }
 
         const endpoint = serverUrl
-        const res = await fetch(serverUrl, {
-            headers: {
-                "Content-Type": "application/json"
-            },
-        })
-        const data = await res.json()
+        const annotations = await fetchAnnotations(endpoint)
 
         const r = Recogito.init({content});
-        r.setAnnotations(data)
+        r.setAnnotations(annotations)
 
         r.on("createAnnotation", async (annotation) => {
             debug('create')
