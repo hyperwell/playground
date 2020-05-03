@@ -1,4 +1,4 @@
-# Hyperwell Test Environment
+# Test Environment for Hyperwell
 
 You will need to have [Node.js](https://nodejs.org) installed.
 
@@ -16,7 +16,7 @@ npm install
 npm run dev
 ```
 
-Navigate to [localhost:5000](http://localhost:5000). You should see your app running. Edit a component file in `src`, save it, and reload the page to see your changes.
+Navigate to [localhost:5000](http://localhost:5000). You should see your app running. To test the annotation environment with a notebook provided by a Hyperwell gateway, obtain its gateway-issued URL (which is based on its ID, e.g., `http://gateway.example.com/annotatios/abcdef123`). Enter the full URL and make sure to check the Hyperwell option. By clicking the ‘Load Annotations’ button, the environment will fetch all existing annotations and establish a WebSocket connection for receiving real-time updates by collaborators.
 
 By default, the server will only respond to requests from localhost. To allow connections from other computers, edit the `sirv` commands in package.json to include the option `--host 0.0.0.0`.
 
