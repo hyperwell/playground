@@ -1,6 +1,8 @@
 {
-  "name": "hyperwell-test-environment",
-  "version": "1.0.0",
+  "name": "@hyperwell/annotation-environment",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Jan Kaßel <jan@kassel.works>",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",

@@ -1,20 +1,10 @@
-# Test Environment for Hyperwell
+# Annotation Environment for Hyperwell
 
-You will need to have [Node.js](https://nodejs.org) installed.
+This application serves as an experimental annotation environment for testing real-time, collaborative annotation with the [Hyperwell gateway](https://github.com/hyperwell/gateway).
 
 ## Get started
 
-Install the dependencies...
-
-```bash
-npm install
-```
-
-... then start [Rollup](https://rollupjs.org):
-
-```bash
-npm run dev
-```
+You will need to have [Node.js](https://nodejs.org) installed. Install the dependencies via `npm install` and start the [Rollup development server](https://rollupjs.org) via `npm run dev`.
 
 Navigate to [localhost:5000](http://localhost:5000). You should see your app running. To test the annotation environment with a notebook provided by a Hyperwell gateway, obtain its gateway-issued URL (which is based on its ID, e.g., `http://gateway.example.com/annotatios/abcdef123`). Enter the full URL and make sure to check the Hyperwell option. By clicking the ‘Load Annotations’ button, the environment will fetch all existing annotations and establish a WebSocket connection for receiving real-time updates by collaborators.
 
