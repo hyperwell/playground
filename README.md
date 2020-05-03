@@ -1,5 +1,7 @@
 # Annotation Environment for Hyperwell
 
+[![DOI](https://zenodo.org/badge/258166590.svg)](https://zenodo.org/badge/latestdoi/258166590)
+
 This application serves as an experimental annotation environment for testing real-time, collaborative annotation with the [Hyperwell gateway](https://github.com/hyperwell/gateway).
 
 ## Get started
