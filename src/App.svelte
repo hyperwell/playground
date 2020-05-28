@@ -76,7 +76,8 @@
 
         if (isHyperwell) {
             const {host, notebookId} = parseHyperwellUrl(endpoint)
-            const subscriptionEndpoint = `ws://${host}/annotations/subscribe/${notebookId}`
+            const protocol = endpoint.startsWith('https') ? 'wss' : 'ws'
+            const subscriptionEndpoint = `${protocol}://${host}/annotations/subscribe/${notebookId}`
 
             const ws = new WebSocket(subscriptionEndpoint)
             ws.onmessage = event => {
