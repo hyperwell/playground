@@ -1,15 +1,15 @@
 <script>
     import createDebug from 'debug'
     import Recogito from '@recogito/recogito-js'
-    import {fetchAnnotations} from '../lib/web-annotation'
+    import { WebAnnotationAdapter } from 'recogito-web-annotation-adapter'
     import faust from '../faust.txt'
 
     createDebug.enable('annotation*')
     const debug = createDebug('annotation')
 
-    let content, serverUrl, isHyperwell = true, submitted, r, endpoint
+    let content, serverUrl, isHyperwell = true, submitted, recogito, annotationAdapter, endpoint
 
-    function parseHyperwellUrl(gatewayUrl) {
+    function parseHyperwellUrl (gatewayUrl) {
         const url = new URL(gatewayUrl)
         const segments = url.pathname.split('/').filter(segment => segment.length)
         if (segments.length < 2 || segments[0] !== 'annotations') {
@@ -21,7 +21,31 @@
         }
     }
 
-    async function submit(event) {
+    function setupHyperwell (recogito, endpoint) {
+        const { host, notebookId } = parseHyperwellUrl(endpoint)
+        const protocol = endpoint.startsWith('https') ? 'wss' : 'ws'
+        const subscriptionEndpoint = `${protocol}://${host}/annotations/subscribe/${notebookId}`
+
+        const ws = new WebSocket(subscriptionEndpoint)
+        ws.onmessage = event => {
+            const diff = JSON.parse(event.data)
+            debug('real-time update', diff)
+
+            for (const addedAnnotation of diff.inserted) {
+                recogito.addAnnotation(addedAnnotation)
+            }
+
+            for (const changedAnnotation of diff.changed) {
+                recogito.addAnnotation(changedAnnotation)
+            }
+
+            for (const deletedAnnotation of diff.deleted) {
+                recogito.removeAnnotation(deletedAnnotation)
+            }
+        }
+    }
+
+    async function submit (event) {
         event.preventDefault()
 
         if (!serverUrl || submitted) {
@@ -33,69 +57,14 @@
         }
 
         const endpoint = serverUrl
-        const annotations = await fetchAnnotations(endpoint)
 
-        const r = Recogito.init({content});
-        r.setAnnotations(annotations)
-
-        r.on("createAnnotation", async (annotation) => {
-            debug('create')
-            const rawAnnotation = {...annotation}
-            if (annotation.id) {
-                delete rawAnnotation.id
-            }
-
-            await fetch(endpoint, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                redirect: "follow",
-                body: JSON.stringify(rawAnnotation)
-            });
-        });
-
-        r.on("updateAnnotation", async (annotation) => {
-            debug('update', annotation.id)
-            await fetch(annotation.id, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                redirect: "follow",
-                body: JSON.stringify(annotation)
-            });
-        });
-
-        r.on("deleteAnnotation", async (annotation) => {
-            debug('delete', annotation.id)
-            await fetch(annotation.id, {
-                method: "delete",
-            });
-        });
+        const targetSource = `${window.location}#${content.getAttribute('id')}`
+        recogito = Recogito.init({ content })
+        annotationAdapter = new WebAnnotationAdapter(recogito, targetSource, endpoint)
+        annotationAdapter.getAnnotations()
 
         if (isHyperwell) {
-            const {host, notebookId} = parseHyperwellUrl(endpoint)
-            const protocol = endpoint.startsWith('https') ? 'wss' : 'ws'
-            const subscriptionEndpoint = `${protocol}://${host}/annotations/subscribe/${notebookId}`
-
-            const ws = new WebSocket(subscriptionEndpoint)
-            ws.onmessage = event => {
-                const diff = JSON.parse(event.data)
-                debug('real-time update', diff)
-
-                for (const addedAnnotation of diff.inserted) {
-                    r.addAnnotation(addedAnnotation)
-                }
-
-                for (const changedAnnotation of diff.changed) {
-                    r.addAnnotation(changedAnnotation)
-                }
-
-                for (const deletedAnnotation of diff.deleted) {
-                    r.removeAnnotation(deletedAnnotation)
-                }
-            };
+            setupHyperwell(recogito, endpoint)
         }
 
         submitted = true
@@ -122,7 +91,7 @@
             <button class="submit" disabled={!serverUrl || submitted}>Load Annotations</button>
         </form>
     </header>
-    <div bind:this={content} class="chapter" class:disabled="{ submitted !== true }">
+    <div bind:this={content} class="chapter" class:disabled="{ submitted !== true }" id="faust">
         {#each verses as group}
             <p class="group">
                 {#each group as verse}
